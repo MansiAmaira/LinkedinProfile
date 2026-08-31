@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: linkedin-profile-api
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:file:./data/linkedin-profile-api;MODE=PostgreSQL}
+    username: ${DATABASE_USERNAME:sa}
+    password: ${DATABASE_PASSWORD:}
+    driver-class-name: ${DATABASE_DRIVER:org.h2.Driver}
+  h2:
+    console:
+      enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:4173}
+  scraping:
+    headless: ${SCRAPER_HEADLESS:true}
+    timeout-ms: ${SCRAPER_TIMEOUT_MS:45000}
+    poll-delay-ms: ${SCRAPER_POLL_DELAY_MS:1500}
+    browser-ws-endpoint: ${BROWSER_WS_ENDPOINT:}
+    storage-state-path: ${LINKEDIN_STORAGE_STATE_PATH:}
+    linkedin-email: ${LINKEDIN_EMAIL:}
+    linkedin-password: ${LINKEDIN_PASSWORD:}
+  jobs:
+    cache-ttl-hours: ${SCRAPE_CACHE_TTL_HOURS:24}
+    async-thread-pool-size: ${SCRAPE_THREAD_POOL_SIZE:4}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

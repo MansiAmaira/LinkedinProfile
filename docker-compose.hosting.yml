@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: linkedin_profile_api
+      POSTGRES_USER: linkedin
+      POSTGRES_PASSWORD: linkedin
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U linkedin -d linkedin_profile_api"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/linkedin_profile_api
+      DATABASE_DRIVER: org.postgresql.Driver
+      DATABASE_USERNAME: linkedin
+      DATABASE_PASSWORD: linkedin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: /api/v1
+    environment:
+      BACKEND_UPSTREAM: http://backend:8080
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:
